@@ -1,0 +1,105 @@
+.movie_card {
+  position: relative;
+  display: flex;
+  gap: 20px;
+  width: 454px;
+  height: 281px;
+  list-style: none;
+  background-color: #ffffff;
+  border-radius: 4px;
+  box-shadow: 2px 4px 5px 1px #e5e5e5;
+}
+
+.card_container_first {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card_info {
+  margin-top: 12px;
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.card_tittle {
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  width: 150px;
+}
+
+.movie_poster {
+  width: 183px;
+  height: 100%;
+}
+
+.card_star {
+  display: flex;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: solid 2px green;
+  margin-left: auto;
+  margin-right: 10px;
+  flex-shrink: 0;
+  right: 9px;
+  top: 12px;
+}
+
+.card_time {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+body {
+  max-width: 1010px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: #ffffff;
+  margin-top: 0px;
+}
+
+html {
+  background-color: #e5e5e5;
+  padding: 0px;
+  margin: 0px;
+}
+
+.card_genres {
+  margin-top: 7px;
+  margin-bottom: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.card_genre {
+  font-size: 12px;
+  padding: 3px 3px;
+  background-color: #fafafa;
+  border: solid 1px #d9d9d9;
+  border-radius: 3px;
+}
+
+.ant-rate-text {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ant-rate {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+  flex-shrink: 0;
+  display: flex;
+  width: 239px;
+}
+.card_overview {
+  margin-top: 7px;
+  margin-right: 20px;
+}
