@@ -1,7 +1,7 @@
 import React from 'react'
 
 import './movie-list.css'
-import { GenreConsumer } from '../context/context'
+import { GenreConsumer } from '../../context/context'
 import MovieCard from '../movie-card/movie-card'
 
 export default class MovieList extends React.Component {

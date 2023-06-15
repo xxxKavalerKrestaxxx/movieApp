@@ -2,18 +2,18 @@ import React from 'react'
 import { Pagination } from 'antd'
 
 import SearchForm from '../search-form/search-form'
-import searchMovies from '../get-api/get-api'
 import MovieList from '../movie-list/movie-list'
 import Menus from '../menu/menus'
 import Spiner from '../spiner/spiner'
-import { GenreProvider } from '../context/context'
+import { GenreProvider } from '../../context/context'
+import Apishe4ka from '../../apishe4ka/apishe4ka'
 
 export default class App extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
       films: [],
-      loading: true,
+      loading: false,
       currentValue: '',
       currentPage: 1,
       totalRated: 0,
@@ -25,21 +25,21 @@ export default class App extends React.Component {
     }
   }
 
-  componentDidMount() {
-    this.createGuestSession()
-    this.fetchGenres()
-  }
+  fetcher = new Apishe4ka()
 
-  fetchGenres = () => {
-    fetch('https://api.themoviedb.org/3/genre/movie/list?api_key=87816a77eb101eb61635d1fc67cd33f4')
-      .then((response) => response.json())
-      .then((data) => {
-        const { genres } = data
-        this.setState({ genres })
-      })
-      .catch((error) => {
-        console.error('Ошибка при получении жанров', error)
-      })
+  componentDidMount() {
+    this.fetcher.createGuestSession().then((response) => {
+      this.setState({ guestSessionId: response })
+    })
+
+    this.fetcher.fetchGenres().then((res) => {
+      this.setState({ genres: res })
+    })
+
+    this.searchMovie('in')
+    if (!navigator.onLine) {
+      throw new Error('Нет интернета')
+    }
   }
 
   setMenu = (value) => {
@@ -49,47 +49,30 @@ export default class App extends React.Component {
     }
   }
 
-  createGuestSession = () => {
-    fetch('https://api.themoviedb.org/3/authentication/guest_session/new?api_key=87816a77eb101eb61635d1fc67cd33f4')
-      .then((response) => response.json())
-      .then((data) => {
-        const { guest_session_id } = data
-        this.setState({ guestSessionId: guest_session_id })
-        console.log(guest_session_id)
-        if (this.state.menu === 'rated') {
-          this.getRatedMovies()
-        }
-      })
-      .catch((error) => {
-        console.error('Ошибка при создании гостевой сессии:', error)
-      })
-  }
-
   getRatedMovies = () => {
-    const { guestSessionId } = this.state
-    fetch(
-      `https://api.themoviedb.org/3/guest_session/${guestSessionId}/rated/movies?api_key=87816a77eb101eb61635d1fc67cd33f4`
-    )
-      .then((response) => response.json())
+    this.setState({ loading: true })
+    this.fetcher
+      .getRatedMovies(this.state.guestSessionId)
       .then((data) => {
-        this.setState({ ratedFilms: data.results, totalRated: data.total_results })
+        this.setState({ ratedFilms: data.results, totalRated: data.total_results, loading: false })
       })
       .catch((error) => {
-        console.error('Ошибка при получении оцененных фильмов:', error)
         this.setState({ ratedFilms: [] })
+        throw new Error('Ошибка при получении оцененных фильмов:', error)
       })
   }
 
   searchMovie = (value, page) => {
     this.setState({ loading: true, currentValue: value })
 
-    searchMovies(value, page || 1)
+    this.fetcher
+      .searchMovies(value, page || 1)
       .then(({ movies, data }) => {
         const totalResults = data.total_results || 0
         this.setState({ films: movies, loading: false, totalResults })
       })
       .catch((error) => {
-        console.error(error)
+        throw new Error(error)
       })
   }
 
