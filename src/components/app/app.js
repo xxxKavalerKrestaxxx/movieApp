@@ -132,8 +132,17 @@ export default class App extends React.Component {
     if (warning.length > 0) {
       return (
         <section className="main">
-          <Menus setMenu={this.setMenu} />
-          <SearchForm searchMovie={this.searchMovie} menu={this.state.menu} />
+          <Menus
+            setMenu={() => {
+              return null
+            }}
+          />
+          <SearchForm
+            searchMovie={() => {
+              return null
+            }}
+            menu={this.state.menu}
+          />
           <div className="no_internet_container">
             {warning.map((item, index) => {
               return <Alert key={index} message="Ошибка " description={item} type="error" />
