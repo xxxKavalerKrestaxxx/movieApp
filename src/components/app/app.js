@@ -1,6 +1,5 @@
 import React from 'react'
-import { Pagination } from 'antd'
-import { Alert } from 'antd'
+import { Pagination, Alert } from 'antd'
 
 import SearchForm from '../search-form/search-form'
 import MovieList from '../movie-list/movie-list'
