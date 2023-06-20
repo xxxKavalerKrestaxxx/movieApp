@@ -1,8 +1,7 @@
-export default class Apishe4ka {
+export default class MovieAPI {
   constructor() {
     this.BASE_URL = 'https://api.themoviedb.org/3'
     this.API_KEY = '87816a77eb101eb61635d1fc67cd33f4'
-    this.state = {}
   }
 
   async searchMovies(query, page) {
@@ -11,7 +10,7 @@ export default class Apishe4ka {
     try {
       const response = await fetch(url)
       if (!response.ok) {
-        throw new Error(`Проблема: ${response.status}`)
+        console.error(`Проблема: ${response.status}`)
       }
 
       const data = await response.json()
@@ -19,8 +18,7 @@ export default class Apishe4ka {
 
       return { movies, data }
     } catch (error) {
-      console.error(error)
-      throw new Error('Произошла ошибка при поиске фильмов')
+      return [], {}
     }
   }
 
@@ -30,16 +28,13 @@ export default class Apishe4ka {
     return fetch(url)
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`Проблема: ${response.status}`)
+          console.error(`Проблема: ${response.status}`)
         }
         return response.json()
       })
       .then((data) => {
         const { genres } = data
         return genres
-      })
-      .catch((error) => {
-        throw new Error('Ошибка при получении жанров', error)
       })
   }
 
@@ -54,7 +49,7 @@ export default class Apishe4ka {
       return fetch(url)
         .then((response) => {
           if (!response.ok) {
-            throw new Error(`Проблема: ${response.status}`)
+            console.error(`Проблема: ${response.status}`)
           }
           return response.json()
         })
@@ -62,27 +57,38 @@ export default class Apishe4ka {
           const { guest_session_id } = data
           localStorage.setItem('guestSessionId', guest_session_id)
           console.log(guest_session_id)
-          this.state({ guestSessionId: guest_session_id })
+
           return guest_session_id
-        })
-        .catch((error) => {
-          throw new Error('Ошибка при создании гостевой сессии:', error)
         })
     }
   }
 
-  getRatedMovies = (guestSessionId) => {
-    const url = `${this.BASE_URL}/guest_session/${guestSessionId}/rated/movies?api_key=${this.API_KEY}`
+  getRatedMovies = (guestSessionId, page) => {
+    const url = `${this.BASE_URL}/guest_session/${guestSessionId}/rated/movies?api_key=${this.API_KEY}&page=${page}`
 
-    return fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Проблема: ${response.status}`)
-        }
-        return response.json()
-      })
-      .catch((error) => {
-        throw new Error('Ошибка при получении оцененных фильмов:', error)
-      })
+    return fetch(url).then((response) => {
+      if (!response.ok) {
+        console.error(`Проблема: ${response.status}`)
+      }
+      return response.json()
+    })
+  }
+  handleRating = (id, guest_session_id, rating) => {
+    fetch(`${this.BASE_URL}/movie/${id}/rating?api_key=${this.API_KEY}&guest_session_id=${guest_session_id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        value: rating,
+      }),
+    }).then((response) => {
+      if (response.ok) {
+        console.log('Рейтинг успешно отправлен:', response)
+      }
+    })
+  }
+  getPoster = (poster) => {
+    return <img className="movie_poster" src={`https://image.tmdb.org/t/p/w500${poster}`} alt="Movie Poster" />
   }
 }

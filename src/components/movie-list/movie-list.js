@@ -7,7 +7,7 @@ import MovieCard from '../movie-card/movie-card'
 export default class MovieList extends React.Component {
   render() {
     const { films, guest_session_id } = this.props
-    if (films.length === 0) return <span>No result</span>
+    if (films.length === 0) return <span className="no_internet_container">No result</span>
     return (
       <GenreConsumer>
         {(genres) => (

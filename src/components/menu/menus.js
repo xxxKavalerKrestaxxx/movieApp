@@ -21,10 +21,16 @@ class Menus extends React.Component {
     const { current } = this.state
 
     return (
-      <Menu className="menu" onClick={this.handleClick} selectedKeys={[current]} mode="horizontal">
-        <Menu.Item key="search">Search</Menu.Item>
-        <Menu.Item key="rated">Rated</Menu.Item>
-      </Menu>
+      <Menu
+        className="menu"
+        onClick={this.handleClick}
+        selectedKeys={[current]}
+        mode="horizontal"
+        items={[
+          { key: 'search', label: 'Search' },
+          { key: 'rated', label: 'Rated' },
+        ]}
+      />
     )
   }
 }
