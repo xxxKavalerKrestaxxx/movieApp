@@ -25,31 +25,37 @@ export default class App extends React.Component {
       genres: '',
       isOnline: navigator.onLine,
       warning: [],
+      server: true,
     }
   }
 
   fetcher = new MovieAPI()
 
-  componentDidMount() {
-    this.fetcher.createGuestSession().then((response) => {
-      this.setState({ guestSessionId: response })
-    })
+  async componentDidMount() {
+    try {
+      const serverResponse = await this.fetcher.checkServerConnection()
+      this.setState({ server: serverResponse })
 
-    this.fetcher
-      .fetchGenres()
-      .then((res) => {
-        this.setState({ genres: res })
-      })
-      .catch((error) => {
-        this.setState((prevState) => ({
-          warning: prevState.warning.concat(error),
-        }))
-      })
+      if (this.state.server) {
+        const guestSessionId = await this.fetcher.createGuestSession()
+        this.setState({ guestSessionId })
 
-    this.searchMovie('in')
+        const genres = await this.fetcher.fetchGenres()
+        this.setState({ genres })
+
+        await this.searchMovie('in')
+      }
+    } catch (error) {
+      this.setState((prevState) => ({
+        warning: prevState.warning.concat(error),
+        server: false,
+      }))
+    }
+
     window.addEventListener('online', this.handleOnline)
     window.addEventListener('offline', this.handleOffline)
   }
+
   componentWillUnmount() {
     window.removeEventListener('online', this.handleOnline)
     window.removeEventListener('offline', this.handleOffline)
@@ -63,12 +69,19 @@ export default class App extends React.Component {
     this.setState({ isOnline: false })
   }
 
-  setMenu = (value) => {
+  setMenu = async (value) => {
     this.setState({ menu: value, currentPage: 1 })
-    if (value === 'rated') {
-      this.getRatedMovies(1)
-    } else {
-      this.searchMovieFirst(this.state.currentValue, 1)
+    try {
+      if (value === 'rated') {
+        await this.getRatedMovies(1)
+      } else {
+        await this.searchMovieFirst(this.state.currentValue, 1)
+      }
+    } catch (error) {
+      this.setState((prevState) => ({
+        warning: prevState.warning.concat(error),
+        server: false,
+      }))
     }
   }
 
@@ -83,6 +96,7 @@ export default class App extends React.Component {
         this.setState({ ratedFilms: [] })
         this.setState((prevState) => ({
           warning: prevState.warning.concat(error),
+          server: false,
         }))
       })
   }
@@ -99,6 +113,7 @@ export default class App extends React.Component {
       .catch((error) => {
         this.setState((prevState) => ({
           warning: prevState.warning.concat(error),
+          server: false,
         }))
       })
   }
@@ -115,42 +130,44 @@ export default class App extends React.Component {
       .catch((error) => {
         this.setState((prevState) => ({
           warning: prevState.warning.concat(error),
+          server: false,
         }))
       })
   }
 
-  handlePageChange = (page) => {
+  handlePageChange = async (page) => {
     this.setState({ currentPage: page })
-    if (this.state.menu === 'rated') {
-      this.getRatedMovies(page)
-    } else this.searchMovie(this.state.currentValue, page)
+
+    try {
+      if (this.state.menu === 'rated') {
+        await this.getRatedMovies(page)
+      } else {
+        await this.searchMovie(this.state.currentValue, page)
+      }
+    } catch (error) {
+      this.setState((prevState) => ({
+        warning: prevState.warning.concat(error),
+        server: false,
+      }))
+    }
   }
 
   render() {
-    const { films, ratedFilms, loading, currentPage, menu, isOnline, warning } = this.state
-    if (warning.length > 0) {
+    const { films, ratedFilms, loading, currentPage, menu, isOnline, warning, server } = this.state
+    if (warning.length > 0 || !server) {
       return (
         <section className="main">
-          <Menus
-            setMenu={() => {
-              return null
-            }}
-          />
-          <SearchForm
-            searchMovie={() => {
-              return null
-            }}
-            menu={this.state.menu}
-          />
+          <Menus setMenu={() => null} />
+          <SearchForm searchMovie={() => null} menu={this.state.menu} />
           <div className="no_internet_container">
-            {warning.map((item, index) => {
-              return <Alert key={index} message="Ошибка " description={item} type="error" />
-            })}
+            {warning.map((item, index) => (
+              <Alert key={index} message="Ошибка соединения с сервером" description={item.toString()} type="error" />
+            ))}
           </div>
         </section>
       )
     }
-    if (!isOnline) {
+    if (!isOnline || !server) {
       return (
         <section className="main">
           <Menus

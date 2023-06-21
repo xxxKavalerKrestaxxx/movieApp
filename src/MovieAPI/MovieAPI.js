@@ -4,22 +4,32 @@ export default class MovieAPI {
     this.API_KEY = '87816a77eb101eb61635d1fc67cd33f4'
   }
 
+  checkServerConnection = () => {
+    return fetch(`${this.BASE_URL}/search/movie?api_key=${this.API_KEY}&query=z`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Проблема: ${response.status}`)
+        } else {
+          return true
+        }
+      })
+      .catch((error) => {
+        throw error
+      })
+  }
+
   async searchMovies(query, page) {
     const url = `${this.BASE_URL}/search/movie?api_key=${this.API_KEY}&query=${query}&page=${page}`
 
-    try {
-      const response = await fetch(url)
-      if (!response.ok) {
-        console.error(`Проблема: ${response.status}`)
-      }
-
-      const data = await response.json()
-      const movies = data.results
-
-      return { movies, data }
-    } catch (error) {
-      return [], {}
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`Проблема: ${response.status}`)
     }
+
+    const data = await response.json()
+    const movies = data.results
+
+    return { movies, data }
   }
 
   fetchGenres = () => {
@@ -28,13 +38,16 @@ export default class MovieAPI {
     return fetch(url)
       .then((response) => {
         if (!response.ok) {
-          console.error(`Проблема: ${response.status}`)
+          throw new Error(`Проблема: ${response.status}`)
         }
         return response.json()
       })
       .then((data) => {
         const { genres } = data
         return genres
+      })
+      .catch((error) => {
+        throw error
       })
   }
 
@@ -48,10 +61,11 @@ export default class MovieAPI {
 
       return fetch(url)
         .then((response) => {
-          if (!response.ok) {
-            console.error(`Проблема: ${response.status}`)
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw new Error(`Проблема: ${response.status}`)
           }
-          return response.json()
         })
         .then((data) => {
           const { guest_session_id } = data
@@ -60,19 +74,28 @@ export default class MovieAPI {
 
           return guest_session_id
         })
+        .catch((error) => {
+          throw error
+        })
     }
   }
 
   getRatedMovies = (guestSessionId, page) => {
     const url = `${this.BASE_URL}/guest_session/${guestSessionId}/rated/movies?api_key=${this.API_KEY}&page=${page}`
 
-    return fetch(url).then((response) => {
-      if (!response.ok) {
-        console.error(`Проблема: ${response.status}`)
-      }
-      return response.json()
-    })
+    return fetch(url)
+      .then((response) => {
+        if (response.ok) {
+          return response.json()
+        } else {
+          throw new Error(`Проблема: ${response.status}`)
+        }
+      })
+      .catch((error) => {
+        throw error
+      })
   }
+
   handleRating = (id, guest_session_id, rating) => {
     fetch(`${this.BASE_URL}/movie/${id}/rating?api_key=${this.API_KEY}&guest_session_id=${guest_session_id}`, {
       method: 'POST',
@@ -82,12 +105,19 @@ export default class MovieAPI {
       body: JSON.stringify({
         value: rating,
       }),
-    }).then((response) => {
-      if (response.ok) {
-        console.log('Рейтинг успешно отправлен:', response)
-      }
     })
+      .then((response) => {
+        if (response.ok) {
+          console.log('Рейтинг успешно отправлен:', response)
+        } else {
+          throw new Error(`Проблема: ${response.status}`)
+        }
+      })
+      .catch((error) => {
+        throw error
+      })
   }
+
   getPoster = (poster) => {
     return <img className="movie_poster" src={`https://image.tmdb.org/t/p/w500${poster}`} alt="Movie Poster" />
   }
