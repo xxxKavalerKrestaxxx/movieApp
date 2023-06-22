@@ -151,6 +151,16 @@ export default class App extends React.Component {
       }))
     }
   }
+  handleRatingChange = (rating, id) => {
+    try {
+      this.fetcher.handleRating(id, this.state.guestSessionId, rating)
+    } catch (error) {
+      this.setState((prevState) => ({
+        warning: prevState.warning.concat(error),
+        server: false,
+      }))
+    }
+  }
 
   render() {
     const { films, ratedFilms, loading, currentPage, menu, isOnline, warning, server } = this.state
@@ -209,7 +219,7 @@ export default class App extends React.Component {
             <SearchForm searchMovie={this.searchMovieFirst} menu={this.state.menu} />
             {menu === 'rated' ? (
               <>
-                <MovieList films={ratedFilms} guest_session_id={this.state.guestSessionId} />
+                <MovieList films={ratedFilms} handleRatingChange={this.handleRatingChange} />
                 {films.length > 0 && (
                   <Pagination
                     showSizeChanger={false}
@@ -222,7 +232,11 @@ export default class App extends React.Component {
               </>
             ) : (
               <>
-                <MovieList films={films} guest_session_id={this.state.guestSessionId} />
+                <MovieList
+                  films={films}
+                  guest_session_id={this.state.guestSessionId}
+                  handleRatingChange={this.handleRatingChange}
+                />
                 {films.length > 0 && (
                   <Pagination
                     showSizeChanger={false}

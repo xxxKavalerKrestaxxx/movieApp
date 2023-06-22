@@ -6,7 +6,7 @@ import MovieCard from '../movie-card/movie-card'
 
 export default class MovieList extends React.Component {
   render() {
-    const { films, guest_session_id } = this.props
+    const { films, handleRatingChange } = this.props
     if (films.length === 0) return <span className="no_internet_container">No result</span>
     return (
       <GenreConsumer>
@@ -21,7 +21,7 @@ export default class MovieList extends React.Component {
                 time={item.release_date}
                 genre={item.genre_ids}
                 id={item.id}
-                guest_session_id={guest_session_id}
+                handleRatingChange={handleRatingChange}
                 genres={genres}
                 overview={item.overview}
                 ratingRated={item.rating}

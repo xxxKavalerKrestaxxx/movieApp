@@ -70,8 +70,6 @@ export default class MovieAPI {
         .then((data) => {
           const { guest_session_id } = data
           localStorage.setItem('guestSessionId', guest_session_id)
-          console.log(guest_session_id)
-
           return guest_session_id
         })
         .catch((error) => {
@@ -107,18 +105,12 @@ export default class MovieAPI {
       }),
     })
       .then((response) => {
-        if (response.ok) {
-          console.log('Рейтинг успешно отправлен:', response)
-        } else {
+        if (!response.ok) {
           throw new Error(`Проблема: ${response.status}`)
         }
       })
       .catch((error) => {
         throw error
       })
-  }
-
-  getPoster = (poster) => {
-    return <img className="movie_poster" src={`https://image.tmdb.org/t/p/w500${poster}`} alt="Movie Poster" />
   }
 }

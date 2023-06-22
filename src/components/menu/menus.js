@@ -13,7 +13,6 @@ class Menus extends React.Component {
   handleClick = (e) => {
     const { setMenu } = this.props
     setMenu(e.key)
-    console.log('click ', e.key)
     this.setState({ current: e.key })
   }
 

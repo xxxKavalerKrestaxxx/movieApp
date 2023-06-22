@@ -3,14 +3,15 @@ import { format } from 'date-fns'
 import { Rate } from 'antd'
 
 import './movie-card.css'
-import MovieAPI from '../../MovieAPI/MovieAPI'
 import noposter from '../../img/noposter.png'
 
 export default class MovieCard extends React.Component {
-  fetcher = new MovieAPI()
-  handleRatingChange = (rating) => {
-    const { id, guest_session_id } = this.props
-    this.fetcher.handleRating(id, guest_session_id, rating)
+  handleRating = (rating) => {
+    const { id, handleRatingChange } = this.props
+    handleRatingChange(rating, id)
+  }
+  getPoster = (poster) => {
+    return <img className="movie_poster" src={`https://image.tmdb.org/t/p/w500${poster}`} alt="Movie Poster" />
   }
 
   render() {
@@ -55,7 +56,7 @@ export default class MovieCard extends React.Component {
 
     return (
       <li className="movie_card">
-        {poster === null ? <img src={noposter} alt="no poster" /> : this.fetcher.getPoster(poster)}
+        {poster === null ? <img src={noposter} alt="no poster" /> : this.getPoster(poster)}
 
         <div className="card_info">
           <div>
@@ -79,7 +80,7 @@ export default class MovieCard extends React.Component {
               count={10}
               defaultValue={ratingRated || 0}
               allowHalf
-              onChange={this.handleRatingChange}
+              onChange={this.handleRating}
               style={{ fontSize: '17px' }}
             />
           </div>
